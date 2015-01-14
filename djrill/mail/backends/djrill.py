@@ -13,7 +13,8 @@ from email.mime.base import MIMEBase
 from email.utils import parseaddr
 import json
 import mimetypes
-import requests
+
+from google.appengine.api import urlfetch
 
 DjrillBackendHTTPError = MandrillAPIError # Backwards-compat Djrill<=0.2.0
 
@@ -104,7 +105,9 @@ class DjrillBackend(BaseEmailBackend):
                 raise
             return False
 
-        response = requests.post(api_url, data=json.dumps(api_params, cls=JSONDateUTCEncoder))
+        response = urlfetch.fetch(api_url, 
+                                  method=urlfetch.POST, 
+                                  payload=json.dumps(api_params, cls=JSONDateUTCEncoder))
 
         if response.status_code != 200:
 
@@ -124,7 +127,7 @@ class DjrillBackend(BaseEmailBackend):
             return False
 
         # add the response from mandrill to the EmailMessage so callers can inspect it
-        message.mandrill_response = response.json()
+        message.mandrill_response = json.loads(response.content)
 
         return True
 

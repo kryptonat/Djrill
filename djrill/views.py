@@ -11,7 +11,7 @@ from django.http import HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
-import requests
+from google.appengine.api import urlfetch
 
 from djrill import MANDRILL_API_URL, signals
 from .compat import b
@@ -41,8 +41,9 @@ class DjrillApiMixin(object):
         kwargs = super(DjrillApiMixin, self).get_context_data(**kwargs)
 
         status = False
-        req = requests.post("%s/%s" % (self.api_url, "users/ping.json"),
-                            data={"key": self.api_key})
+        req = urlfetch.fetch("%s/%s" % (self.api_url, "users/ping.json"),
+                             method=urlfetch.POST,
+                             payload={"key": self.api_key})
         if req.status_code == 200:
             status = True
 
@@ -70,8 +71,9 @@ class DjrillApiJsonObjectsMixin(object):
             request_dict.update(extra_dict)
         payload = json.dumps(request_dict)
         api_uri = extra_api_uri or self.api_uri
-        req = requests.post("%s/%s" % (self.api_url, api_uri),
-                            data=payload)
+        req = urlfetch.fetch("%s/%s" % (self.api_url, api_uri),
+                             method=urlfetch.POST,
+                             payload=payload)
         if req.status_code == 200:
             return req.content
         messages.error(self.request, self._api_error_handler(req))
@@ -145,7 +147,9 @@ class DjrillIndexView(DjrillApiMixin, TemplateView):
     def get(self, request, *args, **kwargs):
 
         payload = json.dumps({"key": self.api_key})
-        req = requests.post("%s/users/info.json" % self.api_url, data=payload)
+        req = urlfetch.fetch("%s/users/info.json" % self.api_url,
+                             method=urlfetch.POST,
+                             payload=payload)
 
         return self.render_to_response({"status": json.loads(req.content)})
 

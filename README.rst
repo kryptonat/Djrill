@@ -33,6 +33,14 @@ package. It includes:
 Djrill is released under the BSD license. It is tested against Django 1.3---1.7
 (including Python 3 and PyPy support with Django 1.5+).
 
+Google App Engine compatibility.
+
+* Requests does not yet support AppEngine since it makes assumption about various filesystem things 
+  to load configuration files which don't exist on AppEngine.
+* This is a patch for Djrill to work with Google App Engine applications.
+* Replace all occurrences of Requests and use URL fetch instead.
+* Note that urllib3 includes App Engine support.
+
 .. END shared-intro
 
 .. image:: https://travis-ci.org/brack3t/Djrill.png?branch=master

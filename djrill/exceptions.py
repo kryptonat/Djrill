@@ -1,4 +1,4 @@
-from requests import HTTPError
+from urllib2 import HTTPError
 
 
 class MandrillAPIError(HTTPError):
